@@ -1,25 +1,49 @@
-import logo from './logo.svg';
-import './App.css';
+// Here is the code for main appjs file
+import React, { useState } from "react";
+import EmployeeForm from "./components/EmployeeForm";
+import EmployeeList from "./components/EmployeeList";
+import SearchBar from "./components/SearchBar";
+import Filter from "./components/Filter";
 
-function App() {
+const App = () => {
+  const [employees, setEmployees] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterDesignation, setFilterDesignation] = useState("");
+
+  const addEmployee = (employee) => {
+    setEmployees((prevEmployees) => [
+      ...prevEmployees,
+      { ...employee, id: Date.now() },  // Unique ID for each employee
+    ]);
+  };
+
+  const deleteEmployee = (id) => {
+    if (window.confirm("Are you sure you want to delete this employee?")) {
+      setEmployees((prevEmployees) => prevEmployees.filter((e) => e.id !== id));
+    }
+  };
+
+  const handleSearchChange = (query) => setSearchQuery(query);
+  const handleFilterChange = (designation) => setFilterDesignation(designation);
+
+  const filteredEmployees = employees
+    .filter((employee) =>
+      employee.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      employee.email.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+    .filter((employee) =>
+      filterDesignation ? employee.designation === filterDesignation : true
+    );
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <h1>Employee Management</h1>
+      <EmployeeForm onSave={addEmployee} />
+      <SearchBar searchQuery={searchQuery} onSearchChange={handleSearchChange} />
+      <Filter onFilterChange={handleFilterChange} />
+      <EmployeeList employees={filteredEmployees} onDelete={deleteEmployee} />
     </div>
   );
-}
+};
 
 export default App;
